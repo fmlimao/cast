@@ -16,10 +16,13 @@ module.exports = async (req, res, next) => {
         const decodedToken = jwt.verify(token, key);
 
         const user = await knex('users')
-            .where('deleted_at', null)
-            .where('active', 1)
-            .where('user_id', decodedToken.id)
-            .select('user_id', 'name', 'email', 'active')
+            .innerJoin('roles', 'users.role_id', 'roles.role_id')
+            .where('users.deleted_at', null)
+            .where('users.active', 1)
+            .where('roles.deleted_at', null)
+            .where('roles.active', 1)
+            .where('users.user_id', decodedToken.id)
+            .select('users.user_id', 'users.name', 'users.email', 'users.active', 'roles.key AS  role')
             .first();
 
         if (!user) {
