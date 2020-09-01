@@ -4,10 +4,13 @@
   "description": "Projeto de Elenco",
   "main": "server.js",
   "scripts": {
+    "seed:make": "knex --knexfile knexfile.js seed:make",
+    "migrate:make": "knex --knexfile knexfile.js migrate:make",
     "migrate": "knex --knexfile knexfile.js migrate:latest",
     "rollback": "knex --knexfile knexfile.js migrate:rollback",
     "rollback-all": "knex --knexfile knexfile.js migrate:rollback --all",
-    "reset": "npm run rollback-all && npm run migrate"
+    "seed": "knex --knexfile knexfile.js seed:run",
+    "reset": "npm run rollback-all && npm run migrate && npm run seed"
   },
   "repository": {
     "type": "git",
@@ -21,6 +24,7 @@
   },
   "homepage": "https://github.com/fmlimao/cast#readme",
   "dependencies": {
+    "bcrypt": "^5.0.0",
     "cors": "^2.8.5",
     "dotenv-safe": "^8.2.0",
     "express": "^4.17.1",
@@ -28,6 +32,7 @@
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.21.5",
     "morgan": "^1.10.0",
-    "mysql": "^2.18.1"
+    "mysql": "^2.18.1",
+    "validatorjs": "^3.19.2"
   }
 }
