@@ -1,0 +1,33 @@
+{
+  "name": "cast",
+  "version": "1.0.0",
+  "description": "Projeto de Elenco",
+  "main": "server.js",
+  "scripts": {
+    "migrate": "knex --knexfile knexfile.js migrate:latest",
+    "rollback": "knex --knexfile knexfile.js migrate:rollback",
+    "rollback-all": "knex --knexfile knexfile.js migrate:rollback --all",
+    "reset": "npm run rollback-all && npm run migrate"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fmlimao/cast.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fmlimao/cast/issues"
+  },
+  "homepage": "https://github.com/fmlimao/cast#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv-safe": "^8.2.0",
+    "express": "^4.17.1",
+    "helmet": "^4.1.0",
+    "jsonwebtoken": "^8.5.1",
+    "knex": "^0.21.5",
+    "morgan": "^1.10.0",
+    "mysql": "^2.18.1"
+  }
+}
