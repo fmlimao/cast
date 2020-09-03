@@ -31,7 +31,7 @@
 
 <body class="bg-gradient-primary">
 
-    <div class="container">
+    <div class="container" id="AppVue">
 
         <div class="card o-hidden border-0 shadow-lg my-5">
             <div class="card-body p-0">
@@ -43,46 +43,119 @@
                             <div class="text-center">
                                 <h1 class="h4 text-gray-900 mb-4">Criar uma Conta!</h1>
                             </div>
-                            <form class="user">
-                                <div class="form-group row">
-                                    <div class="col-sm-6 mb-3 mb-sm-0">
-                                        <input type="text" class="form-control form-control-user" id="exampleFirstName"
-                                            placeholder="Primeiro Nome">
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <input type="text" class="form-control form-control-user" id="exampleLastName"
-                                            placeholder="Último Nome">
-                                    </div>
-                                </div>
+
+                            <form class="user" @submit.prevent="submitFormRegister()" novalidate>
+                                <div
+                                    class="alert"
+                                    :class="{
+                                        'alert-danger': formRegister.error,
+                                        'alert-success': !formRegister.error
+                                    }"
+                                    v-if="formRegister.messages.length"
+                                    v-html="formRegister.messages.join('<br>')"
+                                ></div>
+
                                 <div class="form-group">
-                                    <input type="email" class="form-control form-control-user" id="exampleInputEmail"
-                                        placeholder="E-mail">
+                                    <input
+                                        type="text"
+                                        placeholder="Nome Completo"
+                                        class="form-control form-control-user"
+                                        :class="{
+                                            'is-invalid': formRegister.fields.name.error
+                                        }"
+                                        :disabled="formRegister.disabled"
+                                        v-model="formRegister.fields.name.value"
+                                    >
+                                    <small
+                                        class="form-text"
+                                        :class="{
+                                            'text-danger': formRegister.fields.name.error
+                                        }"
+                                        v-if="formRegister.fields.name.messages.length"
+                                        v-html="formRegister.fields.name.messages.join('<br>')"
+                                    ></small>
                                 </div>
+
+                                <div class="form-group">
+                                    <input
+                                        type="email"
+                                        placeholder="E-mail"
+                                        class="form-control form-control-user"
+                                        :class="{
+                                            'is-invalid': formRegister.fields.email.error
+                                        }"
+                                        :disabled="formRegister.disabled"
+                                        v-model="formRegister.fields.email.value"
+                                    >
+                                    <small
+                                        class="form-text"
+                                        :class="{
+                                            'text-danger': formRegister.fields.email.error
+                                        }"
+                                        v-if="formRegister.fields.email.messages.length"
+                                        v-html="formRegister.fields.email.messages.join('<br>')"
+                                    ></small>
+                                </div>
+
                                 <div class="form-group row">
                                     <div class="col-sm-6 mb-3 mb-sm-0">
-                                        <input type="password" class="form-control form-control-user"
-                                            id="exampleInputPassword" placeholder="Senha">
+                                        <input
+                                            type="password"
+                                            placeholder="Senha"
+                                            class="form-control form-control-user"
+                                            :class="{
+                                                'is-invalid': formRegister.fields.password.error
+                                            }"
+                                            :disabled="formRegister.disabled"
+                                            v-model="formRegister.fields.password.value"
+                                        >
+                                        <small
+                                            class="form-text"
+                                            :class="{
+                                                'text-danger': formRegister.fields.password.error
+                                            }"
+                                            v-if="formRegister.fields.password.messages.length"
+                                            v-html="formRegister.fields.password.messages.join('<br>')"
+                                        ></small>
                                     </div>
+
                                     <div class="col-sm-6">
-                                        <input type="password" class="form-control form-control-user"
-                                            id="exampleRepeatPassword" placeholder="Confirmação de senha">
+                                        <input
+                                            type="password"
+                                            placeholder="Confirmação da Senha"
+                                            class="form-control form-control-user"
+                                            :class="{
+                                                'is-invalid': formRegister.fields.passwordConfirm.error
+                                            }"
+                                            :disabled="formRegister.disabled"
+                                            v-model="formRegister.fields.passwordConfirm.value"
+                                        >
+                                        <small
+                                            class="form-text"
+                                            :class="{
+                                                'text-danger': formRegister.fields.passwordConfirm.error
+                                            }"
+                                            v-if="formRegister.fields.passwordConfirm.messages.length"
+                                            v-html="formRegister.fields.passwordConfirm.messages.join('<br>')"
+                                        ></small>
                                     </div>
                                 </div>
-                                <a href="/login" class="btn btn-primary btn-user btn-block">
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary btn-user btn-block"
+                                    :disabled="formRegister.disabled"
+                                >
                                     Criar Conta
-                                </a>
-                                <!-- <hr> -->
-                                <!-- <a href="index.html" class="btn btn-google btn-user btn-block"> -->
-                                    <!-- <i class="fab fa-google fa-fw"></i> Register with Google -->
-                                <!-- </a> -->
-                                <!-- <a href="index.html" class="btn btn-facebook btn-user btn-block"> -->
-                                    <!-- <i class="fab fa-facebook-f fa-fw"></i> Register with Facebook -->
-                                <!-- </a> -->
+                                </button>
                             </form>
+
                             <hr>
+
                             <div class="text-center">
                                 <a class="small" href="/forgot-password">Esqueceu sua senha?</a>
                             </div>
+
                             <div class="text-center">
                                 <a class="small" href="/login">Já tem uma conta? Faça o login!</a>
                             </div>
@@ -103,6 +176,11 @@
 
     <!-- Custom scripts for all pages-->
     <script src="/scripts/startbootstrap-sb-admin-2/js/sb-admin-2.min.js"></script>
+
+    <script>var apiHost = '<%- apiHost %>';</script>
+    <script src="/scripts/axios/dist/axios.min.js"></script>
+    <script src="/scripts/vue/dist/vue.min.js"></script>
+    <script src="/assets/scripts/login.js"></script>
 
 </body>
 

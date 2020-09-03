@@ -47,6 +47,33 @@ var App = new Vue({
                 },
             },
         },
+        formRegister: {
+            disabled: false,
+            error: false,
+            messages: [],
+            fields: {
+                name: {
+                    value: '',
+                    error: false,
+                    messages: [],
+                },
+                email: {
+                    value: '',
+                    error: false,
+                    messages: [],
+                },
+                password: {
+                    value: '',
+                    error: false,
+                    messages: [],
+                },
+                passwordConfirm: {
+                    value: '',
+                    error: false,
+                    messages: [],
+                },
+            },
+        },
     },
     methods: {
 
@@ -68,8 +95,10 @@ var App = new Vue({
             App[formName].messages = response.messages;
 
             for (var field in App[formName].fields) {
-                App[formName].fields[field].error = response.form[field].error;
-                App[formName].fields[field].messages = response.form[field].messages;
+                if (typeof response.form[field] !== 'undefined') {
+                    App[formName].fields[field].error = response.form[field].error;
+                    App[formName].fields[field].messages = response.form[field].messages;
+                }
             }
         },
 
@@ -150,6 +179,16 @@ var App = new Vue({
                 App.formResetPassword.fields.passwordConfirm.messages.push('Campo obrigatório.')
             }
 
+            if (
+                App.formResetPassword.fields.password.value
+                && App.formResetPassword.fields.passwordConfirm.value
+                && App.formResetPassword.fields.password.value !== App.formResetPassword.fields.passwordConfirm.value
+            ) {
+                error = true;
+                App.formResetPassword.fields.passwordConfirm.error = true;
+                App.formResetPassword.fields.passwordConfirm.messages.push('As senhas não combinam.')
+            }
+
             if (error) {
                 App.formResetPassword.error = true;
                 App.formResetPassword.messages.push('Verifique todos os campos.')
@@ -199,6 +238,78 @@ var App = new Vue({
 
             axios.post(`${apiHost}/auth/forgot-password`, {
                 email: App.formForgotPassword.fields.email.value,
+            })
+                .then(function (response) {
+                    callback(response.data);
+                })
+                .catch(function (error) {
+                    callback(error.response.data);
+                });
+        },
+
+        submitFormRegister: function () {
+            App.clearForm('formRegister');
+
+            var callback = function (response) {
+                if (response.error) {
+                    App.populateForm('formRegister', response);
+                } else {
+                    App.populateForm('formRegister', response);
+
+                    setTimeout(function () {
+                        window.location.replace('/login');
+                    }, 1000);
+                }
+            };
+
+            var error = false;
+
+            if (!App.formRegister.fields.name.value) {
+                error = true;
+                App.formRegister.fields.name.error = true;
+                App.formRegister.fields.name.messages.push('Campo obrigatório.')
+            }
+
+            if (!App.formRegister.fields.email.value) {
+                error = true;
+                App.formRegister.fields.email.error = true;
+                App.formRegister.fields.email.messages.push('Campo obrigatório.')
+            }
+
+            if (!App.formRegister.fields.password.value) {
+                error = true;
+                App.formRegister.fields.password.error = true;
+                App.formRegister.fields.password.messages.push('Campo obrigatório.')
+            }
+
+            if (!App.formRegister.fields.passwordConfirm.value) {
+                error = true;
+                App.formRegister.fields.passwordConfirm.error = true;
+                App.formRegister.fields.passwordConfirm.messages.push('Campo obrigatório.')
+            }
+
+            if (
+                App.formRegister.fields.password.value
+                && App.formRegister.fields.passwordConfirm.value
+                && App.formRegister.fields.password.value !== App.formRegister.fields.passwordConfirm.value
+            ) {
+                error = true;
+                App.formRegister.fields.passwordConfirm.error = true;
+                App.formRegister.fields.passwordConfirm.messages.push('As senhas não combinam.')
+            }
+
+            if (error) {
+                App.formRegister.error = true;
+                App.formRegister.messages.push('Verifique todos os campos.')
+                return;
+            }
+
+            App.formRegister.disabled = true;
+
+            axios.post(`${apiHost}/auth/register`, {
+                name: App.formRegister.fields.name.value,
+                email: App.formRegister.fields.email.value,
+                password: App.formRegister.fields.password.value,
             })
                 .then(function (response) {
                     callback(response.data);

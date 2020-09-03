@@ -12,6 +12,7 @@ router.post('/auth', require('./controllers/auth/auth'));
 router.get('/auth/reset-password/:hash', require('./controllers/auth/reset-password-verify'));
 router.post('/auth/reset-password/:hash', require('./controllers/auth/reset-password'));
 router.post('/auth/forgot-password', require('./controllers/auth/forgot-password'));
+router.post('/auth/register', require('./controllers/auth/register'));
 
 // Usuários do sistema
 router.post('/users', require('./controllers/users/store'));
