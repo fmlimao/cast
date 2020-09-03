@@ -1,6 +1,8 @@
 const knex = require('../../database/connection');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const Validator = require('validatorjs');
+const messagesValidator = require('../../validators/messages');
 
 module.exports = async (req, res) => {
     let ret = req.ret;
@@ -9,19 +11,29 @@ module.exports = async (req, res) => {
     try {
         let { email, password } = req.body;
 
-        let hasError = false;
+        // Validando formulário
+        const dataValidate = new Validator({
+            email,
+            password,
+        }, {
+            email: 'required|string|email',
+            password: 'required|string',
+        }, messagesValidator);
 
-        if (!email) {
-            hasError = true;
-            ret.setFieldError('email', true, 'Campo obrigatório');
-        }
+        const fails = dataValidate.fails();
+        const errors = dataValidate.errors.all();
 
-        if (!password) {
-            hasError = true;
-            ret.setFieldError('password', true, 'Campo obrigatório');
-        }
+        if (fails) {
+            for (let field in errors) {
+                let messages = errors[field];
+                ret.setFieldError(field, true);
 
-        if (hasError) {
+                for (let i in messages) {
+                    let message = messages[i];
+                    ret.addFieldMessage(field, message);
+                }
+            }
+
             ret.setCode(400);
             throw new Error('Verifique todos os campos.');
         }
@@ -29,19 +41,42 @@ module.exports = async (req, res) => {
         // Verificando se usuário ja existe
         const user = await knex('users')
             .where('deleted_at', null)
+            .where('active', 1)
             .where('email', email)
             .first();
 
         if (!user) {
             ret.setCode(400);
-            throw new Error('Login inválido.');
+            throw new Error('Usuário não encontrado.');
         }
 
         const passwordVerify = bcrypt.compareSync(password, user.password);
 
         if (!passwordVerify) {
             ret.setCode(400);
-            throw new Error('Login inválido.');
+            throw new Error('Usuário não encontrado.');
+        }
+
+        if (user.request_password_change) {
+            const saltLength = Number(process.env.AUTH_SALT_LENGTH);
+            const newSalt = bcrypt.genSaltSync(saltLength);
+            const newPasswordResetHash = Buffer.from(user.email + newSalt).toString('base64');
+
+            await knex('users')
+                .where('user_id', user.user_id)
+                .update({
+                    'password_reset_hash': newPasswordResetHash,
+                    'password_reset_date': knex.fn.now(),
+                });
+
+            ret.setCode(400);
+            ret.addContent('resetPasswordUrl', {
+                method: 'get',
+                hash: newPasswordResetHash,
+                url: `${process.env.APP_HOST}/auth/reset-password/${newPasswordResetHash}`,
+            });
+
+            throw new Error('Foi solicitada uma troca imediata da senha.');
         }
 
         const login = {
