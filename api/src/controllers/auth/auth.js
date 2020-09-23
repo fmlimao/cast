@@ -40,9 +40,13 @@ module.exports = async (req, res) => {
 
         // Verificando se usuário ja existe
         const user = await knex('users')
-            .where('deleted_at', null)
-            .where('active', 1)
-            .where('email', email)
+            .leftJoin('roles', 'users.role_id', 'roles.role_id')
+            .where('users.deleted_at', null)
+            .where('users.active', 1)
+            .where('roles.deleted_at', null)
+            .where('roles.active', 1)
+            .where('users.email', email)
+            .select('users.user_id AS id', 'users.name', 'users.email', 'users.password', 'roles.key AS role', 'users.request_password_change')
             .first();
 
         if (!user) {
@@ -63,7 +67,7 @@ module.exports = async (req, res) => {
             const newPasswordResetHash = Buffer.from(user.email + newSalt).toString('base64');
 
             await knex('users')
-                .where('user_id', user.user_id)
+                .where('user_id', user.id)
                 .update({
                     'password_reset_hash': newPasswordResetHash,
                     'password_reset_date': knex.fn.now(),
@@ -80,8 +84,11 @@ module.exports = async (req, res) => {
         }
 
         const login = {
-            id: user.user_id,
-        }
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+        };
 
         const exp = Number(process.env.TOKEN_EXPIRATION_SEC);
         if (exp) {

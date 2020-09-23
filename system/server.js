@@ -117,22 +117,23 @@ app.post('/save-session', (req, res) => {
     return res.status(ret.getCode()).json(ret.generate());
 });
 
+app.get('/logout', middlwareVerifyNotLogged, (req, res) => {
+    res.clearCookie('systemLogin');
+    return res.redirect('/login');
+});
+
 app.use(expressLayouts);
 app.set('layout', 'layout');
 
 app.get('/', middlwareVerifyNotLogged, (req, res) => {
-    if (!req.cookies.systemLogin) {
-        return res.redirect('/login');
+    if (req.auth.role == 'cast') {
+        return res.redirect('/profile');
     }
 
     return res.render('home', {
         title: `${process.env.APP_TITLE} - Home`,
+        auth: req.auth,
     });
-});
-
-app.get('/logout', middlwareVerifyNotLogged, (req, res) => {
-    res.clearCookie('systemLogin');
-    return res.redirect('/login');
 });
 
 app.use((req, res, next) => {

@@ -57,21 +57,24 @@ module.exports = async (req, res) => {
         password = bcrypt.hashSync(password, salt);
 
         // Criando novo registro
-        const newUserData = {
+        const userId = (await knex('users').insert({
             name,
             email,
             password,
             salt,
-        };
+        }))[0];
 
-        // const userId = (await knex('users').insert(newUserData))[0];
+        // Criando novo perfil
+        const profileId = (await knex('profiles').insert({
+            user_id: userId,
+        }))[0];
 
-        // const insertedUser = await knex('users')
-        //     .where('user_id', userId)
-        //     .select('user_id', 'name', 'email', 'active')
-        //     .first();
+        const insertedUser = await knex('users')
+            .where('user_id', userId)
+            .select('user_id', 'name', 'email', 'active')
+            .first();
 
-        // ret.addContent('user', insertedUser);
+        ret.addContent('user', insertedUser);
 
         ret.setCode(201);
         ret.addMessage('Usuário adicionado com sucesso!');

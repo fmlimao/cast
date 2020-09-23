@@ -14,7 +14,10 @@ module.exports = async (req, res) => {
             .where('deleted_at', null)
             .where('active', 1)
             .where('password_reset_hash', hash)
-            .first();
+            .first()
+            // .toString()
+            ;
+        // console.log('user', user);
 
         if (!user) {
             ret.setCode(400);
@@ -53,6 +56,8 @@ module.exports = async (req, res) => {
         const saltLength = Number(process.env.AUTH_SALT_LENGTH);
         const newSalt = bcrypt.genSaltSync(saltLength);
         const newPassword = bcrypt.hashSync(password, newSalt);
+
+        console.log('user', user);
 
         await knex('users')
             .where('user_id', user.user_id)

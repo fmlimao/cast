@@ -109,11 +109,13 @@ var App = new Vue({
                 if (response.error) {
                     App.populateForm('formLogin', response);
 
-                    if (typeof response.content.resetPasswordUrl !== 'undefined') {
-                        var hash = response.content.resetPasswordUrl.hash;
-                        setTimeout(function () {
-                            window.location.replace(`/reset-password/${hash}`);
-                        }, 1000);
+                    if (typeof response.content !== 'undefined') {
+                        if (typeof response.content.resetPasswordUrl !== 'undefined') {
+                            var hash = response.content.resetPasswordUrl.hash;
+                            setTimeout(function () {
+                                window.location.replace(`/reset-password/${hash}`);
+                            }, 1000);
+                        }
                     }
                 } else {
                     App.saveSession(response.content.token);
